@@ -1,7 +1,7 @@
 # Advanced Community Bot
 
 <p align="center">
-  <a href="https://ztfr.eu/matrix" target="_blank">Joim Zeitfresser Matrix Community</a>
+  <a href="https://ztfr.eu/matrix" target="_blank">Join Zeitfresser Matrix Community</a>
 </p>
 
 Advanced Community Bot is a powerful Maubot plugin designed to help you manage Matrix communities that are structured around Spaces. It combines moderation tools, automation, and community-driven workflows into a single, opinionated solution that focuses on simplicity, reliability, and clean integration with modern Matrix clients.
