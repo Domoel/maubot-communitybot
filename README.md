@@ -1,251 +1,189 @@
-# Community Bot
-[![Chat on Matrix](https://img.shields.io/badge/chat_on_matrix-%23dev:mssj.me-green)](https://matrix.to/#/#dev:mssj.me)
+# Advanced Community Bot
 
-a maubot plugin that helps administrators of communities on matrix, based on the concept of a matrix space. you may want
-to leverage [join](https://github.com/williamkray/maubot-join) to ensure your bot doesn't end up somewhere it's not
-supposed to be.
+<p align="center">
+  <a href="https://ztfr.eu/matrix">Zeitfresser Matrix Community</a>
+</p>
 
-# important upgrade notes
+Advanced Community Bot is a powerful Maubot plugin designed to help you manage Matrix communities that are structured around Spaces. It combines moderation tools, automation, and community-driven workflows into a single, opinionated solution that focuses on simplicity, reliability, and clean integration with modern Matrix clients.
 
-## v0.4.1
+The plugin is particularly well suited for communities that want strong control over membership, clear moderation flows, and a balance between automation and human oversight.
 
-📢 Reaction-Based Reporting: Community members can now flag suspicious messages or spam by simply reacting with specific emojis (default: 🚩 or ⚠️). The bot immediately alerts moderators in their private channel with a direct link to the incident.
+It was originally created as Community Bot by <a href="https://github.com/williamkray/maubot-communitybot">William Kray</a>. This fork uses his bases and adds additional features and refinments to the bot.
 
-⚖️ Majority-Based Auto-Redaction: For the first time, the bot can act on community consensus. If more than 50% of the human members in a room flag a message, the bot will automatically redact it. This is a game-changer for handling overnight spam attacks when moderators are asleep.
+---
 
-🛡️ Sync-Retry Safeguards: We've implemented advanced event tracking to prevent "ghost notifications" caused by Matrix sync retries. This ensures that each report is processed exactly once.
+## 🛠 What this bot is for
 
-🧹 Code Refinement: Under the hood, we’ve cleaned up the codebase, fixed indentation issues, and optimized member synchronization performance for larger spaces.
+Advanced Community Bot is not meant to replace large-scale moderation frameworks like Draupnir or Mjolnir. Instead, it focuses on providing a cohesive set of tools for managing structured communities with minimal overhead.
 
-🔗 You can now use the new {room_link} variable in your configuration to display a clickable room link, while the existing {room} variable remains fully backward compatible for plain text names.
+It is a strong fit if you:
 
-## v0.3
-        
-New functionality to support room v12 and newer has been added, as well as some significant restructuring of the code
-and commands! v0.3.0 is potentially a breaking change, please make a backup of your old bot configuration and database
-as necessary before updating in case anything goes horribly wrong. i take no responsibility.
+- already run Maubot or prefer lightweight, Python-based tooling  
+- manage a space-centric community with multiple rooms  
+- want simple but effective moderation and automation features  
+- prefer an opinionated setup over highly complex configuration  
 
-commands are now broken up into more logical groupings, so instead of `!community createroom` it's `!community room
-create`, etc. helpful usage messages are usually passed if you do things wrong so this shouldn't be too complicated but
-i'm too lazy to update the below readme to reflect the new command structures. use your brain.
+Communities that benefit most from this plugin typically follow a structure where a central Space controls access to multiple rooms, often with a mix of private and public entry points.
 
-## v0.2
+---
 
-if you are upgrading from an earlier version to v0.2.0, please note that the user permission model has changed to be easier to manage, but will require some intervention.
+## 🚀 Core Features
 
-statically defined `admins` and `moderators` in the config will no longer be used. instead, user permissions in rooms will be inherited from the parent space or room, and changes will cascade to all child rooms.
+### Community initialization
 
-to migrate, ensure your bot is an admin of the parent space and use the `!community sync` command to make users in your admin and moderator lists appropriately leveled in that parent space. this will also clear out these lists to prepare for deprecation in a later version. you may want to run `!community setpower` to update your child rooms if there are significant changes.
+The bot can bootstrap an entire community structure from scratch using a single command. It creates a Space, sets up initial rooms, assigns permissions, and prepares a working moderation environment.
 
-# should i use this?
+This allows you to go from zero to a fully structured community in minutes, following best practices for access control and moderation.
 
-why does this exist? there are some great tools out there already that do probably a much better job at combatting spam
-and abuse on matrix, like [Draupnir](https://github.com/the-draupnir-project/Draupnir). this plugin might make sense for
-you if:
+---
 
-- you're more interested in basic community management tools (like room creation, user activity tracking, etc)
-- you already are running Maubot, or plan to
-- you're afraid of mjolnir/draupnir for some reason
-- you just really love python and want to contribute to this project
+### Greetings and join notifications
 
-my opinion is that your community should probably be configured with the following restrictions to best align
-with this plugin's capabilities:
+The bot can greet users when they join rooms and optionally notify moderators or administrators about new arrivals.
 
-- your Space is invite-only
-- most rooms are join-restricted to only allow members of your space
-- you have a smaller subset of rooms which are publicly facing, where users can join freely and ask admins to be added
-  to the space
+Messages support templating and make use of native Matrix pills for users and rooms, resulting in clean, readable, and interactive notifications.
 
-by following this structure, you reduce the amount of surface area you have to spend time defending against spam and
-implementing censorship rules. the handy `!community initialize <some name for your community>` command will get you
-from zero to an opinionated community structured this way quickly and easily.
+---
 
-if that doesn't sound like how you want to structure your online community, you might be better off using something like
-Draupnir, Meowlnir, or Mjolnir.
+### Activity tracking and pruning
 
-# features
+User activity is tracked across rooms, allowing you to generate reports on inactive members and take action where needed.
 
-please read through the comments in the `base-config.yaml` for more thorough explanations, but this covers the high
-points.
+You can:
+- identify inactive users  
+- exclude specific accounts from pruning  
+- remove inactive members from your community  
 
-## initialize a community from scratch
+This is especially useful for keeping invite-only communities clean and manageable over time.
 
-just installed the plugin for the first time, and want to get started on the right foot? start a DM with your bot and run:
+---
 
-`!community initialize <your community name>`
+### User management
 
-this will perform several actions on your behalf:
+Advanced Community Bot provides a full set of tools for managing users across your entire space:
 
-1. create a space named for your community, with an appropriate alias on the homeserver, and save the config with this parent room ID
-2. add you to the "invitee" list in the config to be invited to all new rooms
-3. set the bot's power level to 1000, and invite you as an administrator with power level 100
-4. create a room within the space for admins/moderators to execute bot commands, this room is invite only
-5. create a publicly facing room called the waiting room to allow newcomers to join and ask for invitation to your space
-6. enable basic keyword and file upload censorship only on the waiting room
-7. all rooms will require moderator permissions to invite additional users, to prevent rogue invitations or unexpected guests
+- kick users from all rooms  
+- ban and unban users globally  
+- optionally redact recent messages when banning  
+- prevent unauthorized invitations via power level control  
 
-once these actions have been taken, you can manage moderators, change room avatars, etc as you like, and add more rooms with
-other commands. happy community-managing!
+All actions are applied consistently across your space and its child rooms.
 
-attempts to run this command once a parent room has been set will fail. 
+---
 
-## greet new users on joining a room
+### Crowd moderation
 
-configure your bot to send a custom greeting to users whenever they join a room! configuration file provides a greeting
-map (define multiple greetings each with an identifier) and then a configuration of which rooms to greet users in, and
-which greeting message the bot should send them.
+The bot includes a lightweight, community-driven moderation system.
 
-Configure a `notification_room` to receive messages when someone joins one of the greeting rooms. If you just want
-notifications (perhaps when someone joins the space, where the bot likely cannot send a greeting anyway) set the
-greeting name to `'none'` in the greeting map, and the bot will skip the greeting and send a notification to your
-notification room.
+Users can report problematic messages by reacting with configured emojis. Reports are aggregated and forwarded to a moderation room, including direct links to the affected content.
 
-## activity tracking and reporting
+If enabled, the bot can automatically redact messages once a majority of users in a room have reported them. This allows communities to react quickly to spam or abuse, even when moderators are not immediately available.
 
-tracks the last message timestamp of a user across any room that the bot is in, and generates a simple report. intended
-to be used to boot people from a matrix space and all space rooms after a period of inactivity (prune inactive users)
-with the `purge` subcommand.
+---
 
-supports simple threshold configuration and the option to also track "reaction" activity. 
+### Moderation workflows
 
-you can also exempt users from showing as "inactive" in the report by setting their ignore status with the `ignore` and
-`unignore` subcommands, e.g. `!community ignore @takinabreak:fromthis.group`. this is helpful to avoid accidentally
-purging admin accounts, backup accounts, rarely used bots, etc.
+Moderation messages, reports, and redactions are designed to be easy to read and interact with.
 
-`sync` subcommand will actively sync your space member list with the database to track active members properly. new
-members to the space automatically trigger a sync, as do most other commands. this command is mostly deprecated but you
-may want to run it just to see what it does.
+All relevant entities—users, rooms, and events—are linked using native Matrix URIs, allowing moderators to jump directly to the relevant context inside their client.
 
-generate a report with the `report` subcommand (i.e. `!community report`) to see your inactive users. you can also
-generate more specific reports using the `inactive`, `purgable`, and `ignored` commands to see users in those specific
-categories.
+This significantly improves the speed and usability of moderation workflows.
 
-## user management
+---
 
-prevent people from inviting randos to your community rooms and bypassing space membership requirements by setting the
-`invite_power_level` value in your config. this is used for all room creation commands.
+### Room management
 
-purge inactive users with the `purge` subcommand (i.e. `!community purge`).
+The bot simplifies working with rooms inside a space:
 
-kick an individual user from your space and all child rooms, regardless of activity status, with the `kick` subcommand
-(e.g. `!community kick @malicious:user.here`). this is useful in communities built on the concept of private (invite
-only) matrix spaces.
+- create rooms with consistent settings and permissions  
+- enforce join restrictions based on space membership  
+- automatically invite configured users  
+- manage encryption settings during creation  
 
-if you want more sever action, use the `ban` and `unban` subcommands to ban users from all rooms in the space (this action
-will automatically kick them from those rooms as well). if you've made a mistake, use the unban option, but they will
-need to rejoin all rooms themselves or be re-invited.
+Room creation follows a predictable pattern, ensuring consistency across your community.
 
-if configured with the `redact_on_ban` setting, banning a user from your space will also queue up to their last 100 messages in each room for redaction. if not, you can redact their messages in each individual room using the `!community redact` command.
+---
 
-use the `guests` subcommand to see who is in a room but NOT a member of the parent space (invited guests) e.g.
-`!community guests #myroom:alias.here`.
+### Room archival and replacement
 
-## public banlist support
+Rooms can be archived or replaced when necessary.
 
-initial support for public banlists (as used by other tools like mjolnir/draupnir) is here! this bot leverages
-banlists in read-only mode, just have your bot join one of these banlist rooms, and it will cross reference new room
-members against these lists and immediately ban offenders. there is no intention to add new policy creation features
-to this bot, as those concepts are probably best left to more featureful tools.
+Archiving removes a room from active use while preserving its history. Replacement allows you to create a fresh room while retaining names and aliases, which is useful when permissions become inconsistent or settings need to be reset.
 
-## crowd moderation
+---
 
-The bot includes a community-driven reporting system that allows users to flag problematic content without needing direct moderator intervention for every incident.
+### Public banlist support
 
-### how it works
-1. **Reporting**: When a user reacts to a message with a configured emoji (e.g., 🚩 or ⚠️), the bot sends a notification to the `notification_room` containing a link to the message and the room name.
-2. **Auto-Redaction**: If `auto_redact_majority` is enabled, the bot tracks unique reporters per message. If the number of reports exceeds 50% of the human members in that room, the bot automatically redacts the message to prevent further harm.
-3. **Transparency**: An automated notice is sent to the notification room whenever a message is auto-redacted, citing the community vote as the reason.
+The bot can consume external banlists in read-only mode. When users join, they are checked against these lists and automatically banned if necessary.
 
-## admin/moderator management
+This allows you to integrate with broader moderation ecosystems without managing policies yourself.
 
-set consistent power levels across all your rooms for your community administrators! user powerlevels will be
-cascaded to all rooms when changed in your parent space. running the setpower subcommand (i.e.
-`!community setpower`) will roll through all rooms in the space and attempt to true-up user
-permissions to match. it will skip rooms that you have enabled verification flows on, unless you pass the room-id
-as an argument to the command. this ensures you don't accidentally un-verify everyone unless you mean to.
+---
 
-if you are running legacy rooms not managed by the bot, and the bot does not have permission to
-send power-level state events to the room, it will return a list for you to handle manually.
+### Message redaction and filtering
 
-## room creation
+Basic content moderation features are included:
 
-use the `createroom` subcommand to create a new room according to your preferences, and join it into the parent space.
-include the `--encrypt` flag in your command to encrypt the room even if the default configuration is to create rooms
-unencrypted.
+- automatic redaction of messages based on keywords  
+- optional blocking/redaction of file uploads  
+- configurable scope (global or per room)  
 
-will attempt to sanitize the room name and assign a room alias automatically. the bot user will be assigned very high
-power level (1000) and set permissions based on the parent space user power-levels. this ensures that the
-bot is still able to manage room admins. the bot will also invite other users to these new rooms as configured in the
-`invitees` list. populate this list with your space admins, other bots, or any other account you want to make sure gets
-invited to the new room!
+These tools are intentionally simple and best used in combination with a well-structured community setup.
 
-rooms created by the bot will have join restriction limited to members of the space.
+---
 
-## room archival and replacement
+### User verification
 
-use the `archive` subcommand to archive a room. this will remove the room from the parent space, remove all room aliases, and add a tombstone event to indicate the room is archived
+Optional verification flows can be enabled for specific rooms.
 
-use the `replaceroom` subcommand to replace an existing room with a new one. this is useful when:
-- room members have power levels that cannot be corrected, or room members you cannot kick out
-- you need to revert encryption settings
-- you want to start fresh with a new room while preserving the old room's name and aliases
+New users are required to complete a simple challenge via direct message before being allowed to participate. This can help reduce spam in publicly accessible entry rooms.
 
-the replacement process will create a new room with the same name and avatar, transfer all room aliases to the new room, and archive the old room with a pointer to the new room. the new room will have standard join rules that restrict membership to space members. this logic is a little clunky, but it seems to work.
+---
 
-replacement will also prompt the bot to review its config, and rotate instances of the old room-id with the new room id to retain
-functionality where necessary.
+## 🧠 Design Philosophy
 
-## get room ID
+Advanced Community Bot follows a few key principles:
 
-sometimes you need to know a rooms identifier, but if the room has an alias associated with it not all clients make it
-easy (or possible) to find. this subcommand (`!community roomid`) can be used to return the room id that a room alias
-points to. with no argument passed, it will return the current room's ID, or you can pass it an alias (e.g. `!community
-roomid #whatisthisroom:myserver.tld`).
+- **Keep things simple** – avoid unnecessary configuration complexity  
+- **Leverage Matrix-native features** – rely on client capabilities where possible  
+- **Be opinionated** – provide sensible defaults instead of endless options  
+- **Stay maintainable** – prioritize clean structure and predictable behavior  
 
-## message redaction
+The codebase has been continuously refactored to support these goals, with a strong focus on reducing duplication, improving structure, and making future changes easier.
 
-the bot can be configured to redact messages automatically to protect your users. set `censor` to either `true`,
-`false`, or a list of room IDs to enable censorship in.
+---
 
-set `censor_files` to have the bot immediately redact file uploads in any censored rooms. define trigger words in
-`censor_wordlist` to flag messages for automatic redaction.
+## ✨ Modern Matrix-Native Experience
 
-please keep in mind that wordlist-based censorship is problematic and may redact false positives. writing a matching
-algorithm that is perfect is impossible. consider configuring your community such that censorship need only be applied
-in a limited subset of rooms.
+One of the core goals of this project is to align closely with how modern Matrix clients behave.
 
-## user verification
+User and room references throughout the bot are rendered using native `matrix:` URIs instead of legacy `matrix.to` links. This means that interactions happen directly inside the client, without external redirects, resulting in a faster and more seamless experience.
 
-configure your rooms (all, or a list of room-ids) to use the `check_if_human` setting. use this in conjunction with a room power-level configuration that
-requires elevated permission to send messages. for example, a "waiting-room"
-with a default power level of -1 for new users, while the power-level required
-to send messages in that room remains 0.
+At the same time, the visual representation has been intentionally simplified. Instead of exposing raw Matrix identifiers, the bot displays clean, human-readable names such as display names and room names. In supporting clients, these elements appear as clickable pills, combining clarity with interactivity.
 
-enabling this and associated configuration will perform the following
-validation:
+## ⚙️ Configuration
 
-1. when a user joins one of these rooms, the bot will check to see if they have
-   permission to send messages.
-2. if not, the bot will start a DM with that user and ask them to repeat a phrase,
-   randomly chosen from your list of verification phrases. they have three tries.
-3. when they send the matching verification phrase, the bot will bump their power
-   level up to that required to send messages in your room, and leave the DM.
+Configuration is handled via `base-config.yaml`.
 
-not the most user-friendly experience, but may help cut down if you are experiencing
-significant spam in your rooms. every permitted user goes in the state event, so this
-will become problematic and expensive for very large rooms... strong recommend not to
-use this if you expect to have thousands of room members.
+Templates support placeholders such as `{user}`, `{room}`, `{user_id}`, and `{room_link}`. The `{user}` and `{room}` placeholders render as clickable elements using native Matrix URIs, while link-specific placeholders retain their original behavior.
 
-if you enable user verification in an existing room, but you don't want to disrupt the
-current users' ability to send messages, you can use the `!community verify-migrate`
-command to set permissions correctly. **DO NOT DO THIS IN LARGE ROOMS**. if you have more
-than a handful of people, consider how many of them actually say anything in a given day
-and whether or not it's worth filling your state event with them. consider alternative
-options.
+The configuration surface is intentionally kept minimal. Advanced customization can still be achieved by adjusting internal constants if needed.
 
-# installation
+---
 
-install this like any other maubot plugin: zip the contents of this repo into a file and upload via the web interface,
-or use the `mbc` utility to package and upload to your maubot server. 
+## 📦 Installation
 
-be sure to give your bot permission to kick people from all rooms, otherwise management features will not work!
+Install the plugin like any other Maubot plugin:
+
+- package it using `mbc build` or use the pre ompiled .mbp file in the release section.
+- upload it via the Maubot web interface  
+
+Make sure the bot has sufficient permissions in your rooms (especially for kicking, banning, and redacting messages), otherwise some features will not function correctly.
+
+---
+
+## 🧭 Final Notes
+
+Advanced Community Bot aims to strike a balance between usability and control. It provides the tools needed to manage a structured Matrix community effectively, without overwhelming administrators with complexity.
+
+If your use case requires highly advanced policy management or federation-wide moderation, you may want to look at tools like Draupnir. For most community-centric setups, however, this bot offers a practical and efficient solution.
