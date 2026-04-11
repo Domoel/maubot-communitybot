@@ -190,9 +190,6 @@ verification_message: |
 
   Please send a message to this chat with the content: "{phrase}"
 
-# prefixes used for the clickable {user} and {room} placeholders in rendered HTML notices.
-# set either value to "" for a cleaner look without a visible prefix.
-
 # Base URL for Matrix permalink generation.
 # This is used for placeholders such as {user_link} and {room_link}.
 # Set this to your own matrix.to-compatible instance if you do not want to use https://matrix.to.
