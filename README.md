@@ -1,7 +1,7 @@
 # Advanced Community Bot
 
 <p align="center">
-  <a href="https://ztfr.eu/matrix">Zeitfresser Matrix Community</a>
+  <a href="https://ztfr.eu/matrix" target="_blank">Zeitfresser Matrix Community</a>
 </p>
 
 Advanced Community Bot is a powerful Maubot plugin designed to help you manage Matrix communities that are structured around Spaces. It combines moderation tools, automation, and community-driven workflows into a single, opinionated solution that focuses on simplicity, reliability, and clean integration with modern Matrix clients.
@@ -25,8 +25,6 @@ It is a strong fit if you:
 
 Communities that benefit most from this plugin typically follow a structure where a central Space controls access to multiple rooms, often with a mix of private and public entry points.
 
----
-
 ## 🚀 Core Features
 
 ### Community initialization
@@ -35,15 +33,11 @@ The bot can bootstrap an entire community structure from scratch using a single 
 
 This allows you to go from zero to a fully structured community in minutes, following best practices for access control and moderation.
 
----
-
 ### Greetings and join notifications
 
 The bot can greet users when they join rooms and optionally notify moderators or administrators about new arrivals.
 
 Messages support templating and make use of native Matrix pills for users and rooms, resulting in clean, readable, and interactive notifications.
-
----
 
 ### Activity tracking and pruning
 
@@ -56,8 +50,6 @@ You can:
 
 This is especially useful for keeping invite-only communities clean and manageable over time.
 
----
-
 ### User management
 
 Advanced Community Bot provides a full set of tools for managing users across your entire space:
@@ -69,8 +61,6 @@ Advanced Community Bot provides a full set of tools for managing users across yo
 
 All actions are applied consistently across your space and its child rooms.
 
----
-
 ### Crowd moderation
 
 The bot includes a lightweight, community-driven moderation system.
@@ -79,8 +69,6 @@ Users can report problematic messages by reacting with configured emojis. Report
 
 If enabled, the bot can automatically redact messages once a majority of users in a room have reported them. This allows communities to react quickly to spam or abuse, even when moderators are not immediately available.
 
----
-
 ### Moderation workflows
 
 Moderation messages, reports, and redactions are designed to be easy to read and interact with.
@@ -88,8 +76,6 @@ Moderation messages, reports, and redactions are designed to be easy to read and
 All relevant entities—users, rooms, and events—are linked using native Matrix URIs, allowing moderators to jump directly to the relevant context inside their client.
 
 This significantly improves the speed and usability of moderation workflows.
-
----
 
 ### Room management
 
@@ -102,23 +88,17 @@ The bot simplifies working with rooms inside a space:
 
 Room creation follows a predictable pattern, ensuring consistency across your community.
 
----
-
 ### Room archival and replacement
 
 Rooms can be archived or replaced when necessary.
 
 Archiving removes a room from active use while preserving its history. Replacement allows you to create a fresh room while retaining names and aliases, which is useful when permissions become inconsistent or settings need to be reset.
 
----
-
 ### Public banlist support
 
 The bot can consume external banlists in read-only mode. When users join, they are checked against these lists and automatically banned if necessary.
 
 This allows you to integrate with broader moderation ecosystems without managing policies yourself.
-
----
 
 ### Message redaction and filtering
 
@@ -130,15 +110,11 @@ Basic content moderation features are included:
 
 These tools are intentionally simple and best used in combination with a well-structured community setup.
 
----
-
 ### User verification
 
 Optional verification flows can be enabled for specific rooms.
 
 New users are required to complete a simple challenge via direct message before being allowed to participate. This can help reduce spam in publicly accessible entry rooms.
-
----
 
 ## 🧠 Design Philosophy
 
@@ -150,8 +126,6 @@ Advanced Community Bot follows a few key principles:
 - **Stay maintainable** – prioritize clean structure and predictable behavior  
 
 The codebase has been continuously refactored to support these goals, with a strong focus on reducing duplication, improving structure, and making future changes easier.
-
----
 
 ## ✨ Modern Matrix-Native Experience
 
@@ -169,8 +143,6 @@ Templates support placeholders such as `{user}`, `{room}`, `{user_id}`, and `{ro
 
 The configuration surface is intentionally kept minimal. Advanced customization can still be achieved by adjusting internal constants if needed.
 
----
-
 ## 📦 Installation
 
 Install the plugin like any other Maubot plugin:
@@ -179,8 +151,6 @@ Install the plugin like any other Maubot plugin:
 - upload it via the Maubot web interface  
 
 Make sure the bot has sufficient permissions in your rooms (especially for kicking, banning, and redacting messages), otherwise some features will not function correctly.
-
----
 
 ## 🧭 Final Notes
 
