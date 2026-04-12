@@ -22,7 +22,7 @@ Advanced Community Bot is a Maubot Bot Plugin to manage Matrix servers.
 </h6>
 <br>
 
-## Introduction
+## ✨ Introduction
 
 Advanced Community Bot is a powerful Maubot plugin designed to help you manage Matrix communities that are structured around Spaces. It combines moderation tools, automation, and community-driven workflows into a single, opinionated solution that focuses on simplicity, reliability, and clean integration with modern Matrix clients.
 
