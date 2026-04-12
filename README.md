@@ -154,6 +154,10 @@ Install the plugin like any other Maubot plugin:
 
 Make sure the bot has sufficient permissions in your rooms (especially for kicking, banning, and redacting messages), otherwise some features will not function correctly.
 
+## Development & Support
+
+If you need to get support or want to participate in the active development of this software, you can <a href="https://ztfr.eu/matrix">join our Zeitfresser Matrix Community</a> or the <a href="https://look.ztfr.eu/#/#support:ztfr.eu">Development & Support Channel</a> on Matrix.
+
 ## 🧭 Final Notes
 
 Advanced Community Bot aims to strike a balance between usability and control. It provides the tools needed to manage a structured Matrix community effectively, without overwhelming administrators with complexity.
