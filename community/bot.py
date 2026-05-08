@@ -206,6 +206,8 @@ class CommunityBot(Plugin):
         target_room_id: RoomID,
         template: str,
         context: RenderContext,
+        actor_id: Optional[str] = None,
+        actor_display: Optional[str] = None,
     ) -> None:
         """Render a template once and send plaintext + HTML variants."""
         plain_text, html_message = self._render_message_template(
@@ -214,6 +216,8 @@ class CommunityBot(Plugin):
             context.user_display,
             context.room_id,
             context.room_text,
+            actor_id,
+            actor_display,
         )
         await self.client.send_notice(target_room_id, plain_text, html=html_message)
 
@@ -237,6 +241,56 @@ class CommunityBot(Plugin):
                 self.config["join_notification_message"],
                 context,
             )
+            
+    async def _handle_leave_notifications(self, evt: StateEvent, event_type: str) -> None:
+        """Send notifications when a user leaves, is kicked, or banned."""
+
+        # Optional: nur relevante Räume (wie bei join)
+        space_rooms = await self.get_space_roomlist()
+        if evt.room_id not in space_rooms:
+            return
+
+        if not self.config["notification_room"]:
+            return
+
+        user_id = evt.state_key
+        sender = evt.sender
+
+        context = await self._build_render_context(evt.room_id, user_id)
+        
+        # === Actor bestimmen ===
+        actor_id = None
+        actor_display = None
+
+        if sender != user_id:
+            actor_id = sender
+            actor_display = await self._get_user_display_name(evt.room_id, sender)
+
+        # === Event-Typ bestimmen ===
+        if event_type == "leave" and sender == user_id:
+            template = self.config["leave_notification_message"]
+
+        elif event_type == "kick":
+            template = self.config["kick_notification_message"]
+
+        elif event_type == "ban":
+            template = self.config["ban_notification_message"]
+
+        else:
+            return
+            
+        # === Template cleanup wenn kein actor ===
+        if not actor_id:
+            template = template.replace(" von {actor}", "")
+            template = template.replace(" {actor}", "")
+
+        await self._send_rendered_notice(
+            self.config["notification_room"],
+            template,
+            context,
+            actor_id=actor_id,
+            actor_display=actor_display,
+        )
 
     def _is_human_verification_enabled_for_room(self, room_id: RoomID) -> bool:
         configured = self.config["check_if_human"]
@@ -407,6 +461,20 @@ class CommunityBot(Plugin):
         href = self._matrix_uri_user(str(user_id))
 
         return label, f"<a href='{href}'>{escape(label)}</a>"
+        
+    def _format_actor_pill(
+        self,
+        actor_id: Optional[str],
+        actor_display: Optional[str] = None,
+    ) -> Tuple[str, str]:
+        """Return plaintext and HTML variants for the {actor} placeholder."""
+        if not actor_id:
+            return "", ""
+
+        safe_display = actor_display or actor_id
+        href = self._matrix_uri_user(str(actor_id))
+
+        return safe_display, f"<a href='{href}'>{escape(safe_display)}</a>"
 
     def _format_room_pill(
         self,
@@ -434,6 +502,8 @@ class CommunityBot(Plugin):
         user_display: Optional[str] = None,
         room_id: Optional[str] = None,
         room_text: Optional[str] = None,
+        actor_id: Optional[str] = None,
+        actor_display: Optional[str] = None,
     ) -> Tuple[str, str]:
         user_url = self._matrix_to_url(user_id)
         safe_user_display = user_display or user_id
@@ -442,6 +512,7 @@ class CommunityBot(Plugin):
         room_url = self._matrix_to_url(safe_room_id) if safe_room_id else ""
         user_plain, user_html = self._format_user_pill(user_id, safe_user_display)
         room_plain, room_html = self._format_room_pill(safe_room_id, safe_room_text)
+        actor_plain, actor_html = self._format_actor_pill(actor_id, actor_display)
 
         plain_text = template.format(
             user=user_plain,
@@ -450,6 +521,8 @@ class CommunityBot(Plugin):
             room=room_plain,
             room_link=room_url,
             room_id=safe_room_id,
+            actor=actor_plain,
+            actor_display=actor_display or "",
         )
 
         html_message = template.format(
@@ -462,7 +535,9 @@ class CommunityBot(Plugin):
                 if room_url
                 else escape(safe_room_text)
             ),
-            room_id=escape(safe_room_id),
+            room_id=safe_room_id,
+            actor=actor_html,
+            actor_display=escape(actor_display) if actor_display else "",
         )
 
         return plain_text, html_message
@@ -1331,16 +1406,19 @@ class CommunityBot(Plugin):
     async def handle_leave(self, evt: StateEvent) -> None:
         """Handle voluntary leave events."""
         await self.handle_leave_events(evt)
+        await self._handle_leave_notifications(evt, "leave")
 
     @event.on(InternalEventType.KICK)
     async def handle_kick(self, evt: StateEvent) -> None:
         """Handle kick events."""
         await self.handle_leave_events(evt)
+        await self._handle_leave_notifications(evt, "kick")
 
     @event.on(InternalEventType.BAN)
     async def handle_ban(self, evt: StateEvent) -> None:
         """Handle ban events."""
         await self.handle_leave_events(evt)
+        await self._handle_leave_notifications(evt, "ban")
 
     @event.on(InternalEventType.JOIN)
     async def newjoin(self, evt: StateEvent) -> None:

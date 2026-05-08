@@ -2,7 +2,7 @@ maubot: 0.1.0
 id: advanced-community-bot
 name: Advanced Community Bot
 description: Advanced Community Bot is a Maubot Bot Plugin to manage Matrix servers. 
-version: 1.0.0
+version: 1.0.1
 license: MIT
 
 modules:

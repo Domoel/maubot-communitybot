@@ -91,7 +91,7 @@ welcome_sleep: 0
 # (optional)
 notification_room: 
 
-# message to send to the notification room when someone joins one of the above rooms:
+# message to send to the notification room when someone joins or leave one of the above rooms:
 # available placeholders:
 # - {user}: display name of the joining user (falls back to localpart or user ID)
 # - {user_id}: full Matrix user ID
@@ -101,6 +101,15 @@ notification_room:
 # - {room_id}: raw room ID
 join_notification_message: |
   {user} has joined {room}.
+  
+leave_notification_message: |
+  {user} has left {room}.
+  
+kick_notification_message: |
+  {user} was kicked by {actor} from {room}.
+  
+ban_notification_message: |
+  {user} was baned by {actor} from {room}.
 
 # whether to censor files/messages
 # can be boolean (true/false) for all-or-nothing behavior,
